@@ -1,0 +1,118 @@
+# Local YAML Setup Instructions
+
+## This guide explains how to create and configure the local Spring Boot YAML configuration using `application-local-example.yml`.
+
+## 1. Locate the Example File
+
+## The example configuration should be located in:
+
+# src/
+# └── main/
+#     └── resources/
+#         └── application-local-example.yml
+
+## The example file contains the default configuration required for local development.
+
+## 2. Create `application-local.yml`
+
+## Create a copy of `application-local-example.yml` and rename it to:
+
+# application-local.yml
+
+## Your project should contain:
+
+# src/
+# └── main/
+#     └── resources/
+#         ├── application.yml
+#         ├── application-local-example.yml
+#         └── application-local.yml
+
+## 3. Configure the Local Database
+
+## Open `application-local.yml` and update the database configuration according to your local MySQL setup.
+
+spring:
+  application:
+    name: payment-system
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_system
+    username: root
+    password: # replace with your password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+## Update the following properties:
+
+# Property | Description
+# datasource.url | Local MySQL database connection URL
+# datasource.username | Your MySQL username
+# datasource.password | Your MySQL password
+# payment_system | Name of your local database
+
+## For example:
+
+# datasource:
+#   url: jdbc:mysql://localhost:3306/payment_system
+#   username: root
+#   password: your_password
+
+## 4. Create the Local Database
+
+## Make sure the database specified in `application-local.yml` exists in your local MySQL instance.
+
+## For example:
+
+# CREATE DATABASE payment_system;
+
+## If you use a different database name, update the database name in the JDBC URL accordingly.
+
+## 5. Activate the `local` Profile
+
+## Run the application using the `local` Spring profile.
+
+## Linux/macOS:
+
+# ./gradlew bootRun --args='--spring.profiles.active=local'
+
+## Windows:
+
+# gradlew.bat bootRun --args="--spring.profiles.active=local"
+
+## You can also configure the following VM/program argument in your IDE:
+
+# --spring.profiles.active=local
+
+## 6. Do Not Commit Local Credentials
+
+## If `application-local.yml` contains your actual database username or password, do **not** commit the file to Git.
+
+## Add the following to `.gitignore`:
+
+# src/main/resources/application-local.yml
+
+## The example configuration should remain committed so other developers can use it as a template.
+
+## Recommended Repository Structure
+
+# src/main/resources/
+# ├── application.yml
+# ├── application-local-example.yml   # Commit
+# └── application-local.yml           # Do not commit
+
+## Summary
+
+# - Copy `application-local-example.yml`.
+# - Rename the copy to `application-local.yml`.
+# - Configure your local MySQL database credentials.
+# - Make sure the database exists.
+# - Run the application with the `local` profile.
+# - Keep `application-local.yml` out of Git.
+# - Use `application-local-example.yml` as the shared configuration template.
