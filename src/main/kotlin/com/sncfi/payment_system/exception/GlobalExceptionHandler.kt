@@ -42,6 +42,10 @@ class GlobalExceptionHandler {
         return respond(HttpStatus.BAD_REQUEST, message)
     }
 
+    @ExceptionHandler(InvalidRefreshTokenException::class)
+    fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException) =
+        respond(HttpStatus.UNAUTHORIZED, ex.message)
+
     private fun respond(status: HttpStatus, message: String?) =
         ResponseEntity.status(status).body(
             ErrorResponse(status = status.value(), error = status.reasonPhrase, message = message)

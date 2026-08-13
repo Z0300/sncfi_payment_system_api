@@ -1,5 +1,6 @@
 package com.sncfi.payment_system.security
 
+import com.sncfi.payment_system.config.JwtProperties
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -9,15 +10,12 @@ import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
-class JwtService(
-    @Value($$"${app.jwt.secret}") secret: String,
-    @Value($$"${app.jwt.expiration-ms}") private val expirationMs: Long
-) {
-    private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
+class JwtService(private val jwtProperties: JwtProperties) {
+    private val key: SecretKey = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
-    fun generateToken(userDetails: CustomUserDetails): String {
+    fun generateAccessToken(userDetails: CustomUserDetails): String {
         val now = Date()
-        val expiry = Date(now.time + expirationMs)
+        val expiry = Date(now.time + jwtProperties.accessTokenExpirationMs)
 
         return Jwts.builder()
             .subject(userDetails.username)
@@ -33,18 +31,13 @@ class JwtService(
 
     fun isTokenValid(token: String): Boolean =
         try {
-            val claims = parseClaims(token)
-            claims.expiration.after(Date())
+            parseClaims(token).expiration.after(Date())
         } catch (ex: Exception) {
             false
         }
 
     private fun parseClaims(token: String): Claims =
-        Jwts.parser()
-            .verifyWith(key)
-            .build()
-            .parseSignedClaims(token)
-            .payload
+        Jwts.parser().verifyWith(key).build().parseSignedClaims(token).payload
 
-    val expirationMillis: Long get() = expirationMs
+    val accessTokenExpirationMillis: Long get() = jwtProperties.accessTokenExpirationMs
 }
