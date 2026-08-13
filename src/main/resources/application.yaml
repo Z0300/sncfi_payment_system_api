@@ -3,4 +3,12 @@ spring:
     name: payment-system
   profiles:
     active: local # or production, depending on the environment
-    
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-long-random-secret-before-deploying}
+    access-token-expiration-ms: 900000       # 15 min
+    refresh-token-expiration-ms: 604800000   # 7 days
+  cookie:
+    secure: ${COOKIE_SECURE}
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS}
