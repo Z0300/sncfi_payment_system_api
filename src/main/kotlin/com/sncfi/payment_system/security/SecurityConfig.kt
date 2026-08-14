@@ -1,5 +1,6 @@
 package com.sncfi.payment_system.security
 
+import jakarta.servlet.DispatcherType
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,7 +20,6 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-@EnableWebSecurity
 @EnableMethodSecurity // turns on @PreAuthorize on controllers/services
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
@@ -56,17 +56,19 @@ class SecurityConfig(
 
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
+        return http
             .cors { }
             .csrf { it.disable() } // stateless JWT API — no session to protect via CSRF
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
+                it.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 it.requestMatchers("/api/auth/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
-
-        return http.build()
+            .addFilterBefore(
+                jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter::class.java
+            ).build()
     }
 }

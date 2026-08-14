@@ -18,6 +18,7 @@ import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
 
@@ -70,6 +71,13 @@ class AuthController(
         clearRefreshCookie(response)
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/debug-auth")
+    fun debugAuth(authentication: Authentication): Map<String, Any> =
+        mapOf(
+            "username" to authentication.name,
+            "authorities" to authentication.authorities.map { it.authority }
+        )
 
     private fun issueTokens(user: User, response: HttpServletResponse): LoginResponse {
         val userDetails = CustomUserDetails.from(user)
