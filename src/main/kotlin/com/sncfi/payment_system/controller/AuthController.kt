@@ -72,13 +72,6 @@ class AuthController(
         return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/debug-auth")
-    fun debugAuth(authentication: Authentication): Map<String, Any> =
-        mapOf(
-            "username" to authentication.name,
-            "authorities" to authentication.authorities.map { it.authority }
-        )
-
     private fun issueTokens(user: User, response: HttpServletResponse): LoginResponse {
         val userDetails = CustomUserDetails.from(user)
         val accessToken = jwtService.generateAccessToken(userDetails)

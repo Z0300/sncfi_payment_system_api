@@ -8,7 +8,9 @@ import com.sncfi.payment_system.dto.StatementResponse
 import com.sncfi.payment_system.dto.StudentResponse
 import com.sncfi.payment_system.dto.toPageResponse
 import com.sncfi.payment_system.dto.toResponse
+import com.sncfi.payment_system.security.SecurityUtils
 import com.sncfi.payment_system.service.ChargeService
+import com.sncfi.payment_system.service.ParentAccessService
 import com.sncfi.payment_system.service.ParentLinkService
 import com.sncfi.payment_system.service.StatementService
 import com.sncfi.payment_system.service.StudentService
@@ -32,7 +34,8 @@ class StudentController(
     private val studentService: StudentService,
     private val chargeService: ChargeService,
     private val statementService: StatementService,
-    private val parentLinkService: ParentLinkService
+    private val parentLinkService: ParentLinkService,
+    private val parentAccessService: ParentAccessService
 ) {
 
     @PreAuthorize("hasAnyRole('CASHIER', 'ADMIN')")
@@ -75,4 +78,9 @@ class StudentController(
         parentLinkService.link(request.userId, request.studentId)
         return ResponseEntity.status(HttpStatus.CREATED).build()
     }
+
+    @PreAuthorize("hasRole('PARENT')")
+    @GetMapping("/my-children")
+    fun myChildren(): List<StudentResponse> =
+        parentAccessService.linkedStudents(SecurityUtils.currentUserId()!!).map { it.toResponse() }
 }
